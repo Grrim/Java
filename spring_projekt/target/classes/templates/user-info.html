@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Informacja o użytkowniku</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Użytkownik</h1>
+<p th:text="'id: ' + ${user.id}" />
+<p th:text="'name: ' + ${user.name}" />
+<p th:text="'email: ' + ${user.email}" />
+<p><a href="/adduser"><button>Next User</button></a>
+    <a href="/"><button>Homepage</button></a></p>
+<form th:action="@{'/edituser/' + ${user.name}}" th:object="${user}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="name" th:value="${user.name}" />
+    <input type="hidden" name="email" th:value="${user.email}" />
+    <p><input type="submit" value="Edit User" /></p>
+</form>
+
+<form th:action="@{'/deleteuser/' + ${user.name}}" th:object="${user}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="id" th:value="${user.getId()}" />
+    <p><input type="submit" value="Delete" class="btn btn-danger" /></p>
+</form>
+</body>
+</html>
