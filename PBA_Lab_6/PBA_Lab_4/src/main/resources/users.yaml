@@ -1,0 +1,241 @@
+openapi: 3.0.3
+info:
+  title: User API
+  description: API for managing user data
+  version: 1.0.0
+
+servers:
+  - url: 'http://localhost:8080/api'
+
+paths:
+  /users:
+    get:
+      summary: Retrieve a list of users
+      description: Returns a list of all users in the system.
+      operationId: getUsers
+      security:
+        - BasicAuth: []
+      parameters:
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requestDate'
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+    post:
+      summary: Create a new user
+      description: Creates a new user with the given data.
+      operationId: createUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requestDate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+  /users/{userId}:
+    get:
+      summary: Retrieve a specific user
+      description: Returns a user by their ID.
+      operationId: getUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requestDate'
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+    put:
+      summary: Update a specific user
+      description: Updates the details of an existing user.
+      operationId: updateUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requestDate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+        '500':
+          description: Internal Server Error
+    delete:
+      summary: Delete a specific user
+      description: Deletes a user by their ID.
+      operationId: deleteUser
+      security:
+        - BasicAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/requestId'
+        - $ref: '#/components/parameters/requestDate'
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+
+components:
+
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+  headers:
+    requestId:
+      schema:
+        type: string
+        description: Identifier of a request
+        example: id-1234
+    executionDate:
+      schema:
+        type: string
+        format: date-time
+        description: Date and time of the request execution
+        example: "2024-11-11T14:00:00Z"
+
+  parameters:
+    userId:
+      name: userId
+      in: path
+      required: true
+      description: The ID of the user
+      schema:
+        type: string
+        example: "user-123"
+    requestDate:
+      name: X-Request-Date
+      in: header
+      required: true
+      description: Date and time of the request execution
+      schema:
+        type: string
+        format: date-time
+        example: "2024-11-17T12:00:00Z"
+    requestId:
+      name: X-Request-Id
+      in: header
+      required: true
+      description: The ID of the request
+      schema:
+        type: string
+        example: "req-1234567894"
+
+  schemas:
+    User:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - age
+        - pesel
+        - citizenship
+        - email
+      properties:
+        firstName:
+          type: string
+          example: "John"
+          minLength: 1
+          maxLength: 50
+        lastName:
+          type: string
+          example: "Lennon"
+          minLength: 1
+          maxLength: 50
+        age:
+          type: integer
+          example: 30
+          minimum: 0
+        pesel:
+          type: string
+          example: "12345678901"
+          pattern: '^\d{11}$'
+        citizenship:
+          $ref: '#/components/schemas/Citizenship'
+          nullable: true
+        email:
+          type: string
+          format: email
+          example: "John.Lennon@example.com"
+    Citizenship:
+      type: string
+      example: "PL"
+      enum: ["PL", "DE", "UK"]
+    Error:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          example: "ERR-400"
+        message:
+          type: string
+          example: "Invalid request parameters"
